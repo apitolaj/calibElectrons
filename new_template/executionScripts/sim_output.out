@@ -1,0 +1,30 @@
+**********************************************************************
+*                         SLURM Batch System                         *
+*              IN2P3 Computing Centre, Villeurbanne FR               *
+**********************************************************************
+* Date:                 Mon Jun 15 04:47:43 PM CEST 2026
+* Job name:             submit_SNCUTS_on_c2e_array.sh
+* Job id:               50133810
+* User:                 apitolaj
+* Account:              nemo
+* Submit host:          cca015
+* Partition:            htc
+* Quality of service:   normal
+* Nodelist:             ccwslurm0040
+* Operating System:     Red Hat Enterprise Linux release 9.7 (Plow)
+* Architecture:         x86_64
+**********************************************************************
+Found 3 brio files.
+Array job submitted: 50133889
+Follow-up job submitted: 50133891 (runs after 50133889)
+****************************************************************
+*                      SLURM Batch System                      *
+*           IN2P3 Computing Centre, Villeurbanne FR            *
+****************************************************************
+Date: Mon Jun 15 04:47:43 PM CEST 2026
+Job informations can be found using these commands:
+Accounting:
+sacct -j 50133810
+Efficiency:
+seff 50133810
+****************************************************************

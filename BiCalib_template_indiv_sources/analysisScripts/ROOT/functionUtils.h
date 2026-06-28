@@ -18,8 +18,36 @@ bool isEnergyBetween600_800keV(MiEvent *Event);
 
 float calculateDistTPP(MiEvent *Event, MiVector3D *calibSourceVertexPos);
 
+float calculateDistOM(MiEvent *Event, MiVector3D *calibrationSourceVertexPos);
 
 //-----------------------------------------------------------------------
+
+float calculateDistOM(MiEvent *Event, MiVector3D *calibSourceVertexPos)
+{
+
+	MiVector3D* OMVertexPos = nullptr;
+	MiVector3D* diffVector = new MiVector3D();
+	
+	vector<MiVertex>* vertexVector=Event->getPTD()->getpart(0)->getvertexv();
+	
+	for(MiVertex& vertex : *vertexVector)
+	{
+		if(vertex.getpos()=="calo" || vertex.getpos()=="xcalo" || vertex.getpos()=="gveto")
+		{
+			OMVertexPos=vertex.getr();
+		}
+	}
+	
+	diffVector->setX(OMVertexPos->getX()-calibSourceVertexPos->getX());
+	diffVector->setY(OMVertexPos->getY()-calibSourceVertexPos->getY());
+	diffVector->setZ(OMVertexPos->getZ()-calibSourceVertexPos->getZ());
+	
+	float distOM=diffVector->getModule();
+	
+	delete diffVector;
+	
+	return distOM;
+}
 float calculateDistTPP(MiEvent *Event, MiVector3D *calibSourceVertexPos)
 {
 

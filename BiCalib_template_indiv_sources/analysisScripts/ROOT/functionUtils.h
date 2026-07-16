@@ -2,26 +2,6 @@
 #include <unordered_map>
 #include <string>
 
-bool isCalibElectron_envelope(MiEvent *Event);
-
-bool isCalibElectron_noEnvelope(MiEvent *Event);
-
-float calculateZenith(MiEvent *Event);
-
-float calculateAzimuth(MiEvent *Event);
-
-MiVector3D* calculatePosTPPVector(MiEvent *Event);
-
-void populateChain(TChain &ROOTChain, const char *dirPath);
-
-bool isEnergyBetween600_800keV(MiEvent *Event);
-
-float calculateDistTPP(MiEvent *Event, MiVector3D *calibSourceVertexPos);
-
-float calculateDistOM(MiEvent *Event, MiVector3D *calibrationSourceVertexPos);
-
-inline void makeTrees(TFile* outFile, treeData& trees); 
-
 struct treeData
 {
 
@@ -38,6 +18,28 @@ struct treeData
 	int eventNumber;
 
 };
+
+bool isCalibElectron_envelope(MiEvent *Event);
+
+bool isCalibElectron_noEnvelope(MiEvent *Event);
+
+bool envelopeInteraction(MiEvent *Event);
+
+float calculateZenith(MiEvent *Event);
+
+float calculateAzimuth(MiEvent *Event);
+
+MiVector3D* calculatePosTPPVector(MiEvent *Event);
+
+void populateChain(TChain &ROOTChain, const char *dirPath);
+
+bool isEnergyBetween600_800keV(MiEvent *Event);
+
+float calculateDistTPP(MiEvent *Event, MiVector3D *calibSourceVertexPos);
+
+float calculateDistOM(MiEvent *Event, MiVector3D *calibrationSourceVertexPos);
+
+inline void makeTrees(TFile* outFile, treeData& trees); 
 
 inline const std::unordered_map<std::string, std::pair<double, double>> sourcePositions = {
     {"Source_0_6", {-2089.0, 1272.0}},
@@ -97,8 +99,8 @@ inline void makeTrees(TFile* outFile, treeData& trees)
 
     outFile->cd();
 
-    trees.envelope   = new TTree("envelope");
-    trees.noEnvelope = new TTree("noEnvelope");
+    trees.envelope   = new TTree("envelope", "envelope");
+    trees.noEnvelope = new TTree("noEnvelope", "noEnvelope");
 
     for (TTree* t : {trees.envelope, trees.noEnvelope}) 
 	{
@@ -345,7 +347,3 @@ void populateChain(TChain &ROOTChain, const char *dirPath)
 		}
 	}
 }
-
-
-
-

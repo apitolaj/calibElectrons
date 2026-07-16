@@ -48,16 +48,16 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
         dataTree.eventNumber = i;
         chain.GetEntry(i);
 
-        if(isEnergyinRange(Eve, minEnergy, maxEnergy) && isCalibElectron(Eve)) 
+        if(isEnergyinRange(Eve, minEnergy, maxEnergy)) 
         {
             dataTree.zenith  = calculateZenith(Eve);
             dataTree.azimuth = calculateAzimuth(Eve);
             dataTree.DistOM  = calculateDistOM(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
             dataTree.DistTPP = calculateDistTPP(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-            dataTree.TPPy    = calculatePosTPPVector(Eve).getY();
-            dataTree.TPPz    = calculatePosTPPVector(Eve).getZ();
+            dataTree.TPPy    = calculatePosTPPVector(Eve)->getY();
+            dataTree.TPPz    = calculatePosTPPVector(Eve)->getZ();
 
-            if (didInteractEnvelope(Eve))
+            if (envelopeInteraction(Eve))
             {
                 dataTree.envelope->Fill();
                 envelopeCount++;
@@ -82,7 +82,7 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
         delete outFileROOT;
            
         std::ofstream outFileText("BASE_PLACEHOLDER/DST_PLACEHOLDER/angles_entryCounts_allEnergies_Source_SOURCE_PLACEHOLDER.txt");
-        outFileText << "Entry count (all energies)"       << std::endl;
+        outFileText << "Entry count"       << std::endl;
         outFileText << "Envelope: "    << envelopeCount   << std::endl;
         outFileText << "No Envelope: " << noEnvelopeCount << std::endl;
         outFileText << "Total: "       << totalCount      << std::endl;

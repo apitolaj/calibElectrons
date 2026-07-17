@@ -14,6 +14,8 @@ struct treeData
 	double DistTPP;
 	double TPPy;
 	double TPPz;
+	bool isEdgeTPP;
+	double SDEnergyLoss;
 
 	int eventNumber;
 
@@ -102,8 +104,8 @@ inline const std::unordered_map<std::string, std::pair<double, double>> sourcePo
 bool isEdgeTPP(MiEvent *Event)
 {
 
-	double edgeCutRange = 30.0;
-	double edgeDistFromCenter = 50.0;
+	double edgeCutRange = 10.0;
+	double edgeDistFromCenter = 20.0;
 	
 	MiVector3D* TPPposVector = calculatePosTPPVector(Event);
 	
@@ -136,7 +138,7 @@ bool isEdgeTPP(MiEvent *Event)
 	
 	if
 	(
-		(((OMy+edgeCutRange < TPPy) && (TPPy < OMy+edgeDistFromCenter)) || ((OMy-edgeCutRange > TPPy) && (TPPy > OMy-edgeDistFromCenter)
+		(((OMy+edgeCutRange < TPPy) && (TPPy < OMy+edgeDistFromCenter)) || ((OMy-edgeCutRange > TPPy) && (TPPy > OMy-edgeDistFromCenter)))
 		
 		||
 									      
@@ -154,13 +156,13 @@ double SDEnergyLoss(MiEvent *Event)
 {
 	double energyLoss = 0.0;
 	
-	vector<MiVertex>* visualHitVector=Event->getSD->getvisualhitv();
+	vector<MiSDVisuHit>* visualHitVector=Event->getSD()->getvisuhitv();
 	
 	if(visualHitVector)
 	{
-		for(MiSDVisuHit& visuHit : visualHitVector)
+		for(MiSDVisuHit& visuHit : *visualHitVector)
 		{
-			if(visuHit.getParticleName() == "e-" && visHit.getParentID() == 0)
+			if(visuHit.getParticleName() == "e-" && visuHit.getParentID() == 0)
 			{
 				energyLoss += visuHit.getEdep();
 			}
@@ -169,6 +171,7 @@ double SDEnergyLoss(MiEvent *Event)
 	
 	return energyLoss;
 }
+
 inline void makeTrees(TFile* outFile, treeData& trees) 
 {
 
@@ -179,13 +182,15 @@ inline void makeTrees(TFile* outFile, treeData& trees)
 
     for (TTree* t : {trees.envelope, trees.noEnvelope}) 
 	{
-        t->Branch("eventNum",   &trees.eventNumber,  "eventNumber/I");
-        t->Branch("azimuth" ,   &trees.azimuth    ,  "azimuth/D");
-        t->Branch("zenith"  ,   &trees.zenith     ,  "zenith/D");
-		t->Branch("DistOM"  ,   &trees.DistOM     ,  "DistOM/D");
-        t->Branch("DistTPP" ,   &trees.DistTPP    ,  "DistTPP/D");
-		t->Branch("TPPy"    ,   &trees.TPPy       ,  "TPPy/D");
-        t->Branch("TPPz"    ,   &trees.TPPz       ,  "TPPz/D");
+        t->Branch("eventNum"	    ,   &trees.eventNumber	,  "eventNumber/I");
+        t->Branch("azimuth" 	    ,   &trees.azimuth    	,  "azimuth/D");
+        t->Branch("zenith" 	    ,   &trees.zenith    	,  "zenith/D");
+	t->Branch("DistOM"  	    ,   &trees.DistOM    	,  "DistOM/D");
+        t->Branch("DistTPP" 	    ,   &trees.DistTPP   	,  "DistTPP/D");
+        t->Branch("TPPy"   	    ,   &trees.TPPy     	,  "TPPy/D");
+        t->Branch("TPPz"    	    ,   &trees.TPPz     	,  "TPPz/D");
+        t->Branch("SDEnergyLoss"    ,   &trees.SDEnergyLoss     ,  "SDEnergyLoss/D");
+        t->Branch("isEdgeTPP"  	    ,   &trees.isEdgeTPP       	,  "isEdgeTPP/O");
     }
 }
 

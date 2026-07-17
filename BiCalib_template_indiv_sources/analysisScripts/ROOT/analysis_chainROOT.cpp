@@ -39,8 +39,8 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 	
 	TFile *outFileROOT = new TFile("BASE_PLACEHOLDER/DST_PLACEHOLDER/analysisROOT.root", "RECREATE");
 
-    treeData dataTree;
-    makeTrees(outFileROOT, dataTree);
+	treeData dataTree;
+	makeTrees(outFileROOT, dataTree);
 
 	for (int i = 0; i < chain.GetEntries(); i++)
 	{
@@ -50,12 +50,14 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 
         if(isEnergyinRange(Eve, minEnergy, maxEnergy)) 
         {
-            dataTree.zenith  = calculateZenith(Eve);
-            dataTree.azimuth = calculateAzimuth(Eve);
-            dataTree.DistOM  = calculateDistOM(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-            dataTree.DistTPP = calculateDistTPP(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-            dataTree.TPPy    = calculatePosTPPVector(Eve)->getY();
-            dataTree.TPPz    = calculatePosTPPVector(Eve)->getZ();
+            dataTree.zenith  		= calculateZenith(Eve);
+            dataTree.azimuth 		= calculateAzimuth(Eve);
+            dataTree.DistOM  		= calculateDistOM(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+            dataTree.DistTPP 		= calculateDistTPP(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+            dataTree.TPPy   		= calculatePosTPPVector(Eve)->getY();
+            dataTree.TPPz   		= calculatePosTPPVector(Eve)->getZ();
+            dataTree.SDEnergyLoss	= SDEnergyLoss(Eve);
+            dataTree.isEdgeTPP		= isEdgeTPP(Eve);		
 
             if (envelopeInteraction(Eve))
             {

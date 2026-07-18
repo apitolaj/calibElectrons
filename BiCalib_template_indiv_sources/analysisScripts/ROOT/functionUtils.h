@@ -43,6 +43,8 @@ float calculateDistOM(MiEvent *Event, MiVector3D *calibrationSourceVertexPos);
 
 double SDEnergyLoss(MiEvent *Event);
 
+double SDInitialEnergy(MiEvent *Event);
+
 bool isEdgeTPP(MiEvent *Event);
 
 inline void makeTrees(TFile* outFile, treeData& trees); 
@@ -421,6 +423,32 @@ double SDEnergyLoss(MiEvent *Event)
 	}
 	
 	return energyLoss;
+}
+
+double SDInitialEnergy(MiEvent *Event)
+{	
+	vector<MiSDParticle>* SDParticleVector = Event->getSD()->getpartv();
+	
+	vector<MiSDParticle> SDElectrons;
+	
+	for(MiSDParticle& SDParticle : *SDParticleVector)
+	{
+		if(SDParticle.getname() == "e-") SDElectrons.push_back(SDParticle);
+	}
+	
+	if(SDElectrons.size() == 1) return SDElectrons[0].getE();
+	
+	else
+	{
+		double SDElectronEnergy = SDElectrons[0].getE();
+		
+		for (int i = 1; i < SDElectrons.size(); i++)
+		{
+		    if (SDElectrons[i].getE() > SDElectronEnergy) SDElectronEnergy = SDElectrons[i].getE();
+		}
+		
+		return SDElectronEnergy;
+	}
 }
 
 inline void makeTrees(TFile* outFile, treeData& trees) 

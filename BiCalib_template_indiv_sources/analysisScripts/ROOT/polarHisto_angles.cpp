@@ -112,7 +112,7 @@ const int ARC_STEPS = 32;
  
 inline double AzToPlotRad(double az_deg, bool mirror = false)
 {
-    double phi = (90.0 + az_deg) * TMath::DegToRad();
+    double phi = (az_deg) * TMath::DegToRad();
     return mirror ? TMath::Pi() - phi : phi;
 }
  
@@ -327,28 +327,33 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
     {
         double az;
         const char* text;
-        int align;
     }
     dirs[] =
     {
-        {  0, "Az 0#circ (+y)", 21 },
-        { 90, "Az 90#circ",     32 },
-        {180, "Az 180#circ",    23 },
-        {270, "Az 270#circ",    12 }
+        {  0, "Az 0#circ"},
+        { 90, "Az 90#circ" },
+        {180, "Az 180#circ"},
+        {270, "Az 270#circ"}
     };
  
-    double labelR = mirror ? 1.23 : 1.05;
- 
+    double labelR = 1.25;
+
     for (auto& d : dirs)
     {
         double phi = AzToPlotRad(d.az, mirror);
- 
+
 	double lx = labelR * std::cos(phi);
-	double ly = mirror ? labelR * std::sin(phi) * 0.85 : labelR * std::sin(phi);
+	double ly = labelR * std::sin(phi) *.85;
 	TLatex* lbl = new TLatex(lx, ly, d.text);
- 
+	
+	// Pick alignment so the label sits just outside the spoke tip,
+	// regardless of which way phi points.
+	int hAlign = (lx > 0.15) ? 3 : (lx < -0.15) ? 1 : 2;
+	int vAlign = (ly > 0.15) ? 1 : (ly < -0.15) ? 3 : 2;
+	int align  = 10 * hAlign + vAlign;
+
         lbl->SetTextSize(0.025);
-        lbl->SetTextAlign(d.align);
+        lbl->SetTextAlign(align);
         lbl->Draw("same");
     }
  
@@ -598,6 +603,3 @@ void polarHisto_angles_ENERGY_PLACEHOLDER1_Source_SOURCE_PLACEHOLDER(
         << "[INFO] Done."
         << std::endl;
 }
-
-
-

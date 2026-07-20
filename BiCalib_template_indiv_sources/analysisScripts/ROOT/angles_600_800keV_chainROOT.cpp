@@ -22,7 +22,7 @@ void angles_600_800keV_chainROOT_Source_SOURCE_PLACEHOLDER()
 	int eventNumber;
 	
 	TChain chain("Event");
-	populateChain(chain, "BASE_PLACEHOLDER/../SOURCES/Source_SOURCE_PLACEHOLDER/DATA/ROOTFiles");
+	populateChain(chain, "BASE_PLACEHOLDER/../SOURCES/Source_SOURCE_PLACEHOLDER/DATA/brios/SNCUTS/ROOT/1");
 
 	MiEvent *Eve = new MiEvent();
 	chain.SetBranchAddress("Eventdata", &Eve);
@@ -68,6 +68,7 @@ void angles_600_800keV_chainROOT_Source_SOURCE_PLACEHOLDER()
 			    eventNumber = i;
 			    zenith = calculateZenith(Eve);
 			    azimuth = calculateAzimuth(Eve);
+			    std::cout << "Event " << eventNumber << " : no envelope" << std::endl;
 			    outFile_noEnvelope->cd();
 			    tr_noEnvelope->Fill();
 			}

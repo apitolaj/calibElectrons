@@ -1,6 +1,13 @@
 //user must change this path to where their MiModule is located.
 #include "/sps/nemo/scratch/apitolaj/Modules/MiModule/include/MiEvent.h"
-#include "UTILS_PLACEHOLDER/functionUtils.h"
+//#include "UTILS_PLACEHOLDER/functionUtils.h"
+
+#include "../../../include/detectorGeometry.h"
+#include "../../../include/eventSelection.h"
+#include "../../../include/geometricCalculations.h"
+#include "../../../include/treeData.h"
+#include "../../../include/utils.h"
+
 #include "TLatex.h"
 #include "TVector3.h"
 #include <string>
@@ -45,34 +52,56 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 	for (int i = 0; i < chain.GetEntries(); i++)
 	{
     
-        dataTree.eventNumber = i;
-        chain.GetEntry(i);
+		dataTree.eventNumber = i;
+		chain.GetEntry(i);
+		
+		MiCDParticle* particle = Eve->getPTD()->getpart(0);
+		vector<MiVertex>* vertices = particle->getvertexv();
+		vector<MiCDCaloHit>* caloHits = particle->getcalohitv();
+		
+		TVector3 dir = particle->getdirectionfromfoil();
+		
+		MiVector3D* omPos = nullptr;
+		MiVector3D* tppPos = nullptr;
 
-        if(isEnergyinRange(Eve, minEnergy, maxEnergy)) 
-        {
-            dataTree.zenith  		= calculateZenith(Eve);
-            dataTree.azimuth 		= calculateAzimuth(Eve);
-            dataTree.DistOM  		= calculateDistOM(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-            dataTree.DistTPP 		= calculateDistTPP(Eve, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-            dataTree.TPPy   		= calculatePosTPPVector(Eve)->getY();
-            dataTree.TPPz   		= calculatePosTPPVector(Eve)->getZ();
-            dataTree.SDEnergyLoss	= SDEnergyLoss(Eve);
-            dataTree.isEdgeTPP		= isEdgeTPP(Eve);		
+		for (MiVertex& vertex : *vertices)
+		{
+		    const auto& pos = vertex.getpos();
 
-            if (envelopeInteraction(Eve))
-            {
-                dataTree.envelope->Fill();
-                envelopeCount++;
-            }
+		    if (pos == "calo" || pos == "gveto" || pos == "xcalo")
+			omPos = vertex.getr();
 
-            else
-            {
-                dataTree.noEnvelope->Fill();
-                noEnvelopeCount++;
-            }
+		    else if (pos == "reference source plane")
+			tppPos = vertex.getr();
+		}
+		
 
-            totalCount++;
-	    }
+		if(isEnergyinRange(calculateElectronEnergy(caloHits), minEnergy, maxEnergy)) 
+		{
+		
+		    dataTree.zenith  		= calculateZenith(&dir);
+		    dataTree.azimuth 		= calculateAzimuth(&dir);
+		    dataTree.DistOM  		= calculateDistOM(omPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+		    dataTree.DistTPP 		= calculateDistTPP(tppPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+		    dataTree.TPPy   		= tppPos->getY();
+		    dataTree.TPPz   		= tppPos->getZ();
+		    dataTree.isEdgeTPP		= isEdgeTPP(tppPos);	
+		    dataTree.electronEnergy 	= calculateElectronEnergy(caloHits);
+		
+		    if (envelopeInteraction(Eve))
+		    {
+		        dataTree.envelope->Fill();
+		        envelopeCount++;
+		    }
+
+		    else
+		    {
+		        dataTree.noEnvelope->Fill();
+		        noEnvelopeCount++;
+		    }
+
+		    	totalCount++;
+		}
     }
 
         delete calibSourceVertexPos_Source_SOURCE_PLACEHOLDER;

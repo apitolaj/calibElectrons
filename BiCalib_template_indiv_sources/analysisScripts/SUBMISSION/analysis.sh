@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=analysis
 #SBATCH --array=1-42
-#SBATCH --output=/dev/null
+#SBATCH --output=analysissh.output
 #SBATCH --error=/dev/null
-#SBATCH --time=00:03:00
-#SBATCH --mem=1G
+#SBATCH --time=00:30:00
+#SBATCH --mem=2G
 #SBATCH --cpus-per-task=1
 #SBATCH --export=HOME,USER,THRONG_DIR
 

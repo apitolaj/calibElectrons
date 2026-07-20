@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=ang_600_800keV
 #SBATCH --array=1-42
-#SBATCH --output=/dev/null
+#SBATCH --output=output.out
 #SBATCH --error=/dev/null
-#SBATCH --time=00:03:00
+#SBATCH --time=00:30:00
 #SBATCH --mem=1G
 #SBATCH --cpus-per-task=1
 #SBATCH --export=HOME,USER,THRONG_DIR
@@ -18,7 +18,7 @@ DST_DIR="ANALYSIS/Source_${i}_${k}"
 mkdir -p ${BASE_DIR}/${DST_DIR}
 
 PROFILE_SCRIPT="${THRONG_DIR}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-04-07"
+STACK_NAME="falaise@2026-06-19"
 
 set +e
 set +u

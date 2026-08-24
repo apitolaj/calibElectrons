@@ -75,34 +75,30 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 			tppPos = vertex.getr();
 		}
 		
-
-		if(isEnergyinRange(calculateElectronEnergy(caloHits), minEnergy, maxEnergy)) 
+		dataTree.zenith  		= calculateZenith(&dir);
+		dataTree.azimuth 		= calculateAzimuth(&dir);
+		dataTree.DistOM  		= calculateDistOM(omPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+		dataTree.DistTPP 		= calculateDistTPP(tppPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
+		dataTree.TPPy   		= tppPos->getY();
+		dataTree.TPPz   		= tppPos->getZ();
+		dataTree.isEdgeTPP		= isEdgeTPP(tppPos);	
+		dataTree.electronEnergy 	= calculateElectronEnergy(caloHits);
+		
+		if (envelopeInteraction(Eve))
 		{
-		
-		    dataTree.zenith  		= calculateZenith(&dir);
-		    dataTree.azimuth 		= calculateAzimuth(&dir);
-		    dataTree.DistOM  		= calculateDistOM(omPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-		    dataTree.DistTPP 		= calculateDistTPP(tppPos, calibSourceVertexPos_Source_SOURCE_PLACEHOLDER);
-		    dataTree.TPPy   		= tppPos->getY();
-		    dataTree.TPPz   		= tppPos->getZ();
-		    dataTree.isEdgeTPP		= isEdgeTPP(tppPos);	
-		    dataTree.electronEnergy 	= calculateElectronEnergy(caloHits);
-		
-		    if (envelopeInteraction(Eve))
-		    {
-		        dataTree.envelope->Fill();
+			dataTree.envelope->Fill();
 		        envelopeCount++;
-		    }
+		}
 
-		    else
-		    {
+		else
+		{
 		        dataTree.noEnvelope->Fill();
 		        noEnvelopeCount++;
-		    }
+		}
 
 		    	totalCount++;
-		}
-    }
+	}
+}
 
         delete calibSourceVertexPos_Source_SOURCE_PLACEHOLDER;
 

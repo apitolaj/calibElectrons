@@ -1,5 +1,6 @@
 #pragma once
 
+//map of the positions of the optical modules on the main walls.
 inline const std::unordered_map<std::string, std::pair<double, double>> omPositions = {
     {"0", {-2460.5, -1554.0}},
     {"1", {-2460.5, -1295.0}},
@@ -263,6 +264,7 @@ inline const std::unordered_map<std::string, std::pair<double, double>> omPositi
     {"259", {2460.5, 1554.0}},
 };
 
+//map of the source positions along the source foil region.
 inline const std::unordered_map<std::string, std::pair<double, double>> sourcePositions = {
     {"Source_0_6", {-2089.0, 1272.0}},
     {"Source_1_6", {-1255.0, 1280.0}},

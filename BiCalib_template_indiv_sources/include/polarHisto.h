@@ -154,25 +154,31 @@ TH2Poly* BuildPoly(const char* name, bool rightHemi, bool mirror = false)
 void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false)
 {
 
+	//create an array of the desired zenith labels; these will be reflected to the corresponding 90->180 values for the left hemisphere.
 	double displayZeniths[] = {0, 15, 30, 45, 60, 75, 90};
  
+	//loop over each zenith label in the array.
 	for (double z : displayZeniths)
 	{
+		//define a variable to hold the zenith label and one to hold the radius value on the plot that the label should be. 
 		double r;
 		double labelZenith;
  
 		if (rightHemi)
 		{
+			//if on the right hemipshere, set the zenith label to the value in the array and calculate the radius value.
 		    labelZenith = z;
 		    r = EqualAreaRadius(labelZenith, true);
 		}
 		
 		else
 		{
+			//if not on the right hemisphere, calculate the reflected zenith label value and calculate the radius value. 
 		    labelZenith = 180.0 - z;
 		    r = EqualAreaRadius(labelZenith, false);
 		}
 	 
+		//create and draw an ring (circle) centered at the origin that has a radius of the previous calculated value.
 		TEllipse* ring = new TEllipse(0.0, 0.0, r, r);
 		ring->SetFillStyle(0);
 		ring->SetLineStyle(2);
@@ -180,21 +186,22 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
 		ring->SetLineColor(kBlack);
 		ring->Draw("same");
 	 
+		//draw the label if the zenith value is not equal to 0.
 		if (z > 0.0)
 		{
-		    TLatex* lbl =
-		        new TLatex(r - 0.08,
-		                   0.01,
-		                   Form("%.0f#circ", labelZenith));
-	 
+		    TLatex* lbl = new TLatex(r - 0.08, 0.01, Form("%.0f#circ", labelZenith));
 		    lbl->SetTextSize(0.022);
 		    lbl->Draw("same");
 		}
 	}
  
+	//draw the spokes to the plot at 30 degree intervals. 
 	for (int deg = 0; deg < 360; deg += 30)
 	{
+		//define the phi value that the spoke runs through.
 		double phi = AzToPlotRad(deg, mirror);
+
+		//draw a line between the origin and the point about the rings at the phi value. 
 		TLine* spoke = new TLine(0.0, 0.0, std::cos(phi), std::sin(phi));
 		spoke->SetLineStyle(2);
 		spoke->SetLineWidth(1);
@@ -202,15 +209,16 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
 		spoke->Draw("same");
 	}
  
+	//create an array of a custum data structure to hold the azimuth value, text label, and alignment value.
 	struct
 	{
 		double az;
 		const char* text;
 		int align;
 	}
-	
+
 	dirs[] =
-	{
+	{ 
 		{  0, "Az 0#circ (+y)", 21},
 		{ 90, "Az 90#circ"    , 32},
 		{180, "Az 180#circ"   , 23},
@@ -219,51 +227,47 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
  
 	double labelR = mirror ? 1.23 : 1.05;
  
+	//loop through each sub-array in the array to draw the azimuth label on the plot. 
 	for (auto& d : dirs)
 	{
+		//define the phi value and use it to find the x and y coordinate of the label. 
 		double phi = AzToPlotRad(d.az, mirror);
-		
+
 	 	double lx = labelR * std::cos(phi);
 		double ly = mirror ? labelR * std::sin(phi) * 0.85 : labelR * std::sin(phi);
 		
+		//create and draw the label at the calculated x and y coordinate.
 		TLatex* lbl = new TLatex(lx, ly, d.text);
 		lbl->SetTextSize(0.025);
 		lbl->SetTextAlign(d.align);
 		lbl->Draw("same");
 	}
  
+	//create and draw the histogram title.
 	TLatex* ttl = new TLatex(0.0, 1.25, title);
 	ttl->SetTextAlign(22);
 	ttl->SetTextSize(0.04);
 	ttl->SetTextFont(62);
 	ttl->Draw("same");
-}
+} 
  
-// ------------------------------------------------------------
-// FillHemispherePoly
-//
-// Builds the wedge geometry and fills it from the tree.
-// No drawing/styling here -- this makes the poly reusable both
-// for the "as is" plots AND as an input to ratio/sum arithmetic.
-//
-// If useEnergyCut is true, only entries with ENERGY_BRANCH in
-// [eLo, eHi] are filled (electronEnergy is a Double_t branch).
-// ------------------------------------------------------------
- 
+//function to fill the hemisphere plot with entries.
 TH2Poly* FillHemispherePoly(TTree* tree, bool rightHemi, const char* histName, bool mirror, bool useEnergyCut, double eLo, double eHi)
 {
+	//create a polygon object and define variables for the zenith, azimuth, and energy values for the function's inputted tree entries. 
 	TH2Poly* poly = BuildPoly(histName, rightHemi, mirror);
  
 	double  zenith_val;
 	double  azimuth_val;
 	double energy_val = 0.0;
  	
+	//only set the azimuth, zenith, and energy (if applicable) branches active and tie via a reference their values to the previously defined variables.
  	tree->SetBranchStatus("*", 0);
 	tree->SetBranchStatus(ZENITH_BRANCH,  1);
 	tree->SetBranchStatus(AZIMUTH_BRANCH, 1);
  
 	tree->SetBranchAddress(ZENITH_BRANCH,  &zenith_val);
-        tree->SetBranchAddress(AZIMUTH_BRANCH, &azimuth_val);
+    tree->SetBranchAddress(AZIMUTH_BRANCH, &azimuth_val);
  
 	if (useEnergyCut)
 	{
@@ -271,18 +275,22 @@ TH2Poly* FillHemispherePoly(TTree* tree, bool rightHemi, const char* histName, b
 		tree->SetBranchAddress(ENERGY_BRANCH, &energy_val);
 	}
  
+	//get the total number of entries in the tree and print to the console that they are being processed. 
 	Long64_t nEntries = tree->GetEntries();
- 
+
 	std::cout << "[INFO] Processing " << nEntries << " entries for " << histName << (useEnergyCut ? " (energy cut applied)" : "") << std::endl;
  
+	//loop over each entry in the tree and fill it to a bin in the histogram plot.
 	for (Long64_t i = 0; i < nEntries; ++i)
 	{
 	
+		//get the tree entry.
 		tree->GetEntry(i);
-		 
+		
 		double z = zenith_val;
 		double a = azimuth_val;
 		 
+		//verify that the entry's zenith values are consistent with the hemisphere it is in, skipping the event competely if not. 
 		if (rightHemi)
 		{
 			if (z < 0.0 || z > 90.0) continue;
@@ -292,34 +300,31 @@ TH2Poly* FillHemispherePoly(TTree* tree, bool rightHemi, const char* histName, b
 		{
 			if (z < 90.0 || z > 180.0) continue;
 		}
-		 
+		
+		//verify that the entry is in the desired energy range, skipping the evernt completely if not.
 		if (useEnergyCut)
 		{
 			if (energy_val < eLo || energy_val > eHi) continue;
 		}
 	 
+		//calculate the radius and phi value of the event on the histogram geometry, and then fill a bin at this location on the plot. 
 		double r   = EqualAreaRadius(z, rightHemi);
 		double phi = AzToPlotRad(a, mirror);
 		 
 		poly->Fill(r * std::cos(phi), r * std::sin(phi));
 	}
- 
+
+	//after the fill loop, set all branch back on.
 	tree->SetBranchStatus("*", 1);
  
 	return poly;
 }
  
-// ------------------------------------------------------------
-// StyleAndDrawPoly
-//
-// Takes an already-filled TH2Poly and draws/decorates it into
-// the given pad. Works equally well for raw-count polys and for
-// ratio polys (the color axis just auto-ranges to the content).
-// ------------------------------------------------------------
- 
+//function to draw a given polygon histogram object on a canvas pad.
 void StyleAndDrawPoly(TH2Poly* poly, const char* title, TVirtualPad* pad, bool rightHemi, bool mirror)
 {
 
+	//switch into the canvas pad and draw the polygon object ensuring that any object outer borders are invisible.
 	pad->cd();
 	pad->SetRightMargin(0.15);
 	 
@@ -336,6 +341,7 @@ void StyleAndDrawPoly(TH2Poly* poly, const char* title, TVirtualPad* pad, bool r
 	 
 	pad->Update();
 	 
+	//create the histogram color-key legend and draw it with modified dimensions.
 	TPaletteAxis* palette = (TPaletteAxis*)poly->GetListOfFunctions()->FindObject("palette");
 	 
 	if (palette)
@@ -348,18 +354,13 @@ void StyleAndDrawPoly(TH2Poly* poly, const char* title, TVirtualPad* pad, bool r
 		pad->Update();
 	}
 	 
+	//draw the custom circle rings/spokes/labels for the plot.
 	DrawPolarDecorations(rightHemi, title, mirror);
 	 
 	pad->Update();
 }
- 
-// ------------------------------------------------------------
-// SumPolys
-//
-// Bin-by-bin sum of two bin-aligned TH2Poly histograms
-// (i.e. built with identical BuildPoly geometry/ordering).
-// ------------------------------------------------------------
- 
+
+//function to take two polygon histogram objects and add each bin.
 TH2Poly* SumPolys(TH2Poly* a, TH2Poly* b, const char* name)
 {
 
@@ -376,14 +377,7 @@ TH2Poly* SumPolys(TH2Poly* a, TH2Poly* b, const char* name)
 	return sum;
 }
  
-// ------------------------------------------------------------
-// DivideHemispheres
-//
-// Bin-by-bin ratio of two bin-aligned TH2Poly histograms.
-// Empty denominator bins are set to 0 rather than propagating
-// NaN/inf, so the color map stays well-behaved.
-// ------------------------------------------------------------
- 
+//function to take two polygon histogram objects and divide each bin.
 TH2Poly* DivideHemispheres(TH2Poly* num, TH2Poly* den, const char* name)
 {
 	TH2Poly* ratio = (TH2Poly*)num->Clone(name);
@@ -394,24 +388,18 @@ TH2Poly* DivideHemispheres(TH2Poly* num, TH2Poly* den, const char* name)
 	{
 		double n = num->GetBinContent(i);
 		double d = den->GetBinContent(i);
+		
+		//ensure that a divide by 0 error will not occur.
 		ratio->SetBinContent(i, d != 0.0 ? n / d : 0.0);
 	}
 	 
 	return ratio;
 }
- 
-// ------------------------------------------------------------
-// DrawTreeRow
-//
-// Fills + draws both hemispheres for one tree into the two given
-// pads, EXACTLY as in the original script. Also hands back the
-// filled polys (before any further use) so the caller can reuse
-// their bin contents later for ratio/sum arithmetic without
-// re-scanning the tree.
-// ------------------------------------------------------------
- 
+
+//function to put draw the left and right histograms next to each other.
 bool DrawTreeRow(TFile* f, const char* treeName, const char* rowLabel, const char* histPrefix, TVirtualPad* leftPad, TVirtualPad* rightPad, TH2Poly*& leftPolyOut, TH2Poly*& rightPolyOut)
 {
+	//get the tree from the inputted root file and check that it is found.
 	TTree* tree = nullptr;
 	f->GetObject(treeName, tree);
 	 
@@ -423,12 +411,14 @@ bool DrawTreeRow(TFile* f, const char* treeName, const char* rowLabel, const cha
 	 
 	std::cout << "[INFO] Tree '" << treeName << "' Entries = " << tree->GetEntries() << std::endl;
 	 
+	//create names for the left and right histogram and set their titles as French Side and Italian Side, respectively.
 	std::string leftHistName  = std::string(histPrefix) + "_left_hemisphere";
 	std::string rightHistName = std::string(histPrefix) + "_right_hemisphere";
 	 
 	std::string leftTitle  = std::string(rowLabel) + ": Italian Side.";
 	std::string rightTitle = std::string(rowLabel) + ": French Side.";
 	 
+	//call the fill and style functions to fully draw the plots.
 	leftPolyOut = FillHemispherePoly(tree, false, leftHistName.c_str(), true, false, 0.0, 0.0);
 	StyleAndDrawPoly(leftPolyOut, leftTitle.c_str(), leftPad, false, true);
 	 

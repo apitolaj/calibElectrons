@@ -1,6 +1,7 @@
+//main script to generate the ROOT file used for all further analysis in the repository.
+
 //user must change this path to where their MiModule is located.
 #include "/sps/nemo/scratch/apitolaj/Modules/MiModule/include/MiEvent.h"
-//#include "UTILS_PLACEHOLDER/functionUtils.h"
 
 #include "../../../include/detectorGeometry.h"
 #include "../../../include/eventSelection.h"
@@ -25,10 +26,12 @@ R__LOAD_LIBRARY(/sps/nemo/scratch/apitolaj/Modules/MiModule/lib/libMiModule.so);
 void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 {
 
+	//counter variables for envelope / no envelope interacting electrons
     int envelopeCount = 0;
     int noEnvelopeCount = 0;
     int totalCount = 0;
 
+	//create a vector to store the position of the calibration source and set its components for the respective source.
     MiVector3D* calibSourceVertexPos_Source_SOURCE_PLACEHOLDER = new MiVector3D();
 	
 	if(sourcePositions.count("Source_SOURCE_PLACEHOLDER"))
@@ -38,23 +41,29 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 		calibSourceVertexPos_Source_SOURCE_PLACEHOLDER->setZ(Z);
 	}
 
+	//create a ROOT file chain and populate it.
 	TChain chain("Event");
 	populateChain(chain, "BASE_PLACEHOLDER/../SOURCES/Source_SOURCE_PLACEHOLDER/DATA/ROOTFiles");
 
+	//create an MiEvent pointer to use when accessing the Eventdata branch of the chain.
 	MiEvent *Eve = new MiEvent();
 	chain.SetBranchAddress("Eventdata", &Eve);
 	
+	//create the output ROOT file.
 	TFile *outFileROOT = new TFile("BASE_PLACEHOLDER/DST_PLACEHOLDER/analysisROOT.root", "RECREATE");
 
+	//make the noEnvelope and Envelope trees in the ROOT file.
 	treeData dataTree;
 	makeTrees(outFileROOT, dataTree);
 
+	//loop over each event in the chain.
 	for (int i = 0; i < chain.GetEntries(); i++)
 	{
     
 		dataTree.eventNumber = i;
 		chain.GetEntry(i);
 		
+		//calculate all needed values for the dataTree data structure of the trees, calling functions from the header files as needed.
 		MiCDParticle* particle = Eve->getPTD()->getpart(0);
 		vector<MiVertex>* vertices = particle->getvertexv();
 		vector<MiCDCaloHit>* caloHits = particle->getcalohitv();
@@ -82,24 +91,25 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
 		dataTree.TPPy   		= tppPos->getY();
 		dataTree.TPPz   		= tppPos->getZ();
 		dataTree.isEdgeTPP		= isEdgeTPP(tppPos);	
-		dataTree.electronEnergy 	= calculateElectronEnergy(caloHits);
+		dataTree.electronEnergy = calculateElectronEnergy(caloHits);
 		
+		//fill the calculated dataTree values to either the envelope or no envelope tree and update counter variables. 
 		if (envelopeInteraction(Eve))
 		{
 			dataTree.envelope->Fill();
-		        envelopeCount++;
+		    envelopeCount++;
 		}
 
 		else
 		{
-		        dataTree.noEnvelope->Fill();
-		        noEnvelopeCount++;
+		    dataTree.noEnvelope->Fill();
+		    noEnvelopeCount++;
 		}
 
-		    	totalCount++;
+		    totalCount++;
 	}
 }
-
+		//remove temporary objected created in memory and write output file. 
         delete calibSourceVertexPos_Source_SOURCE_PLACEHOLDER;
 
         dataTree.envelope->Write("", TObject::kOverwrite);
@@ -110,8 +120,8 @@ void analysis_chainROOT_Source_SOURCE_PLACEHOLDER(int minEnergy, int maxEnergy)
            
         std::ofstream outFileText("BASE_PLACEHOLDER/DST_PLACEHOLDER/angles_entryCounts_allEnergies_Source_SOURCE_PLACEHOLDER.txt");
         outFileText << "Entry count"       << std::endl;
-        outFileText << "Envelope: "    << envelopeCount   << std::endl;
-        outFileText << "No Envelope: " << noEnvelopeCount << std::endl;
-        outFileText << "Total: "       << totalCount      << std::endl;
+        outFileText << "Envelope: "        << envelopeCount   << std::endl;
+        outFileText << "No Envelope: "     << noEnvelopeCount << std::endl;
+        outFileText << "Total: "           << totalCount      << std::endl;
         outFileText.close();
 }

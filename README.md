@@ -9,7 +9,7 @@ After installing the necessary modules, the repository can be cloned to the user
    git clone https://github.com/apitolaj/calibElectrons.git
 ```
 <details open>
-<summary><strong> Data Generation</strong></summary>
+<summary><h2>Data Generation and Processing</h2></summary>
 <br>
   
 ### Setting Configuration Files
@@ -53,10 +53,47 @@ Once the previous steps are done, the user is ready to submit the jobs. The file
    ```bash
       bash masterSubmit.sh
    ```
-The data will be simulated and processed through the full framework developed by YAROSLAVA, generating a ROOT file for each source that was simulated, merging multiple ROOT files together if multiple jobs were ran in parallel. Once the jobs finish, the master submission script can be run again to generate more data. Subsequent analysis scripts used in this repository will automatically chain these ROOT files together, leading to no extra work for the user.
+The data will be simulated and processed through the full framework developed by YAROSLAVA, generating a ROOT file for each source that was simulated, merging multiple ROOT files together if multiple jobs were ran in parallel. Once the jobs finish, <b>the master submission script can be run again to generate more data</b>. Subsequent analysis scripts used in this repository will automatically chain these ROOT files together, leading to no extra work for the user.
+
+### Running the Data Analysis Script
+To create the analysis plots for the generated data, the user must first navigate to the SUBMISSION subdirectory and run the script analysis.sh:
+   ```bash
+      cd SUBMISSION
+      bash analysis.sh
+   ```
+For each of the 42 sources, this will copy a version of script /calibElectrons/ROOT/analysis_chainROOT.cpp to each sources' respective folder in the /calibelectrons/ANALYSIS subdirectory and run it; the script knows where to find each sources data and to chain together multiple ROOT files if they exist.
+
+### Analysis ROOT file Structure
+
+The script will produce a ROOT file containing a tree for electrons that interacted with the envelope and a tree for electrons that did not. Each tree has the a branch for each of the follow analysis quantities:
+<div align="center">
+ 
+| Analysis Quantity | Definition                                                                         |
+|------------------ |----------------------------------------------------------------------------------- |
+| zenith            | zenith angle of the electrons trajectory                                           |
+| azimuth           | azimuth angle of the electrons trajectory                                          |
+| DistOM            | Row 1b                                                                             |
+| DistTPP           | Row 2b                                                                             |
+| TPPy              | Electron trajectory projection point y position                                    |
+| TPPz              | Electron trajectory projection point z position                                    |
+| isEdgeTPP         | Boolean for if the electron optimal module vertex is along the edge of the module  |
+| electronEnergy    | Electron energy                                                                    |  
+
+</div>
+
+<table>
+  <tr>
+    <td width="35%">
+      <img src="https://github.com/user-attachments/assets/c624ed1c-422d-412e-9a16-b4216d37c4ff" width="100%">
+    </td>
+    <td width="65%">
+     <img width="1672" height="941" alt="sourcenumbering" src="https://github.com/user-attachments/assets/efa41097-f84c-4b72-9cd5-4c99cbcd482c" />
+    </td>
+  </tr>
+</table>
 
 </details>
+
 <details open>
-<summary><strong> Date Analysis</strong></summary>
+<summary> <h2> Data Analysis </h2></summary>
 </details>
- 

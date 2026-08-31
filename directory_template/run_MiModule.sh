@@ -45,9 +45,6 @@ mkdir -p "${OUTDIR}"
 
 OUTPUT="${OUTDIR}/${BASENAME}.root"
 
-PROFILE_SCRIPT="${THRONG_DIR:-}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-04-07"
-
 #included in config.sh
 #CONF_MI="/sps/nemo/scratch/apitolaj/new_template/configuration/p_MiModule_v00.conf"
 

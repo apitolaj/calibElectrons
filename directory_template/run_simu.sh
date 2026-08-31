@@ -58,10 +58,6 @@ cp "${PIPE2_CONF}" "${OUTDIR}"
 [ -f "${PIPE2_CONF}" ] || { echo "ERROR: pipeline 2 not found: ${PIPE2_CONF}";  exit 22; }
 
 [ -n "${THRONG_DIR:-}" ] || { echo "ERROR: THRONG_DIR is not set"; exit 106; }
-
-PROFILE_SCRIPT="${THRONG_DIR}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-04-07"
-
 [ -f "${PROFILE_SCRIPT}" ] || { echo "ERROR: profile script not found: ${PROFILE_SCRIPT}"; exit 105; }
 
 # ============================================================

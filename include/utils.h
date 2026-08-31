@@ -8,7 +8,7 @@ void populateChain(TChain &ROOTChain, const char *dirPath)
 	TList *files = dir.GetListOfFiles();
 	
 	//if the file list is not empty, chain the ROOT files in it together. 
-    if (files) 
+	if (files) 
 	{
 		TSystemFile *file;
 		TString fname;
@@ -25,7 +25,7 @@ void populateChain(TChain &ROOTChain, const char *dirPath)
 				//append the root file to the chain.
 				TString fullPath = TString(dirPath) + "/" + fname;
 				ROOTChain.Add(fullPath);
-		    }
+			}
 		}
 	}
 }

@@ -28,28 +28,6 @@ inline double sixGaussianSingleFit(double* x,  double* par)
 	double mu1  = par[1];
 	double sig1 = par[2];
 	
-/*	double n2   = (I_555keV_ / I_482keV_) * n1;
-	double mu2  = (555.0 / 482.0) * mu1;
-	double sig2 = sqrt(555.0 / 482.0) * sig1;
-	
-	double n3   = (I_567keV_ / I_482keV_) * n1;
-	double mu3  = (567.0 / 482.0) * mu1;
-	double sig3 = sqrt(567.0 / 482.0) * sig1;
-	
-
-	double n4   = (I_976keV_ / I_482keV_) * n1;
-	double mu4  = (976.0 / 482.0) * mu1;
-	double sig4 = sqrt(976.0 / 482.0) * sig1;
-	
-	double n5   = (I_1049keV_ / I_482keV_) * n1;
-	double mu5  = (1049.0 / 482.0) * mu1;
-	double sig5 = sqrt(1049.0 / 482.0) * sig1;
-	
-	double n6   = (I_1061keV_ / I_482keV_) * n1;
-	double mu6  = (1061.0 / 482.0) * mu1;
-	double sig6 = sqrt(1061.0 / 482.0) * sig1;
-	*/
-	
  	double n2   = (I_555keV_ / I_482keV_) * n1;
 	double mu2  = (555.0 / 482.0) * mu1;
 	double sig2 = sqrt(555.0 / 482.0) * sig1;
@@ -59,9 +37,7 @@ inline double sixGaussianSingleFit(double* x,  double* par)
 	double sig3 = sqrt(567.0 / 482.0) * sig1;
 	
 	double n4   = par[3];
-//	double n4   = (I_976keV_ / I_482keV_) * n1;
 	double mu4  = par[4];
-//	double mu4  = (976.0 / 482.0) * mu1;
 	double sig4 = sqrt(976.0 / 482.0) * sig1;
 	
 	double n5   = (I_1049keV_ / I_976keV_) * n4;
@@ -71,7 +47,7 @@ inline double sixGaussianSingleFit(double* x,  double* par)
 	double n6   = (I_1061keV_ / I_976keV_) * n4;
 	double mu6  = (1061.0 / 976.0) * mu4;
 	double sig6 = sqrt(1061.0 / 482.0) * sig1;
-	
+
 	// Calculation of exponents of each Gaussian
 	double arg1 = (sig1 != 0.0) ? (x[0] - mu1) / (sig1) : 0.0;	
 	double arg2 = (sig2 != 0.0) ? (x[0] - mu2) / (sig2) : 0.0;
@@ -106,7 +82,7 @@ inline double langauShape(double x, double mpv, double eta, double sigma)
 {
 	double invsq2pi = 0.3989422804014; // 1/sqrt(2*pi)
 	double mpshift  = -0.22278298;     // Landau MPV shift correction
-	double np       = 6000.0;           // number of integration steps
+	double np       = 250.0;           // number of integration steps
 	double sc       = 10.0;             // integration range in Gaussian sigmas
  
 	if (eta <= 0.0 || sigma <= 0.0) return 0.0;

@@ -39,8 +39,6 @@ ARRAY_JOB_ID=$(sbatch --array=1-"${N}"%400 \
 
 echo "Array job submitted: ${ARRAY_JOB_ID}"
 
-STACK_NAME="falaise@2026-04-07"
-
 mkdir -p "${HOME_PATH}/SOURCES/${SOURCE_FAMILY}/DATA/ROOTFiles/logs"
 
 # Submit the follow-up job, only runs after ALL array tasks complete successfully

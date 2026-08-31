@@ -45,10 +45,6 @@ mkdir -p "${OUTDIR}"
 
 OUTPUT="${OUTDIR}/${BASENAME}-SNCUTS.brio"
 
-# --- Verify key paths before environment setup ---
-PROFILE_SCRIPT="${THRONG_DIR:-}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-04-07"
-
 #included in config.sh
 #CONF_SN="/sps/nemo/scratch/apitolaj/new_template/configuration/SNCuts-pipeline.conf"
 

@@ -15,11 +15,15 @@ initialize()
     cd ../..
 }
 
-for i in $(seq 0 5); do
-    for k in $(seq 0 6); do
-        initialize "${i}" "${k}"
-    done
-done
+initialize 0 3
+initialize 0 6
+initialize 2 3
+
+#for i in $(seq 0 5); do
+#    for k in $(seq 0 6); do
+#        initialize "${i}" "${k}"
+#    done
+#done
 
 cd configuration/profiles
 bash makeProfiles.sh

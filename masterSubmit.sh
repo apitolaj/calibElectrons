@@ -26,10 +26,14 @@ source home_path.sh
 FIRST=1
 LAST=1
 
-for i in $(seq 0 5);
-do
-    for k in $(seq 0 6);
-    do
-	(cd "${HOME_PATH}/SOURCES/Source_${i}_${k}" && bash submit_simu_array.sh ${FIRST} ${LAST})
-    done
-done
+(cd "${HOME_PATH}/SOURCES/Source_0_3" && bash submit_simu_array.sh ${FIRST} ${LAST})
+(cd "${HOME_PATH}/SOURCES/Source_0_6" && bash submit_simu_array.sh ${FIRST} ${LAST})
+(cd "${HOME_PATH}/SOURCES/Source_2_3" && bash submit_simu_array.sh ${FIRST} ${LAST})
+
+#for i in $(seq 0 5);
+#do
+#    for k in $(seq 0 6);
+#    do
+#	(cd "${HOME_PATH}/SOURCES/Source_${i}_${k}" && bash submit_simu_array.sh ${FIRST} ${LAST})
+#    done
+#done

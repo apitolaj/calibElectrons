@@ -84,7 +84,7 @@ void AddWedgeBin(TH2Poly* poly, bool rightHemi, double zenLo, double zenHi, doub
         	for (int k = 0; k <= ARC_STEPS; ++k)
         	{
 			double t   = static_cast<double>(k) / ARC_STEPS;
-			double phi = phi_lo + t * (phi_hi - phi_lo);
+			double phi = phi_hi - t * (phi_hi - phi_lo);
 			 
 			px.push_back(r_inner * std::cos(phi));
 			py.push_back(r_inner * std::sin(phi));
@@ -189,9 +189,15 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
 		//draw the label if the zenith value is not equal to 0.
 		if (z > 0.0)
 		{
-		    TLatex* lbl = new TLatex(r - 0.08, 0.01, Form("%.0f#circ", labelZenith));
-		    lbl->SetTextSize(0.022);
-		    lbl->Draw("same");
+			if(z == 15 || z == 45 | z==75 || z==90) continue;
+
+			double lx = r - 0.1;
+			if (rightHemi) lx = -(r - 0.1);   // reflect across y-axis on the right hemisphere
+
+			TLatex* lbl = new TLatex(lx, 0.01, Form("%.0f#circ", labelZenith));
+			lbl->SetTextSize(0.035);
+			lbl->SetTextColor(kWhite);			
+			lbl->Draw("same");
 		}
 	}
  
@@ -219,34 +225,41 @@ void DrawPolarDecorations(bool rightHemi, const char* title, bool mirror = false
 
 	dirs[] =
 	{ 
-		{  0, "Az 0#circ (+y)", 21},
-		{ 90, "Az 90#circ"    , 32},
-		{180, "Az 180#circ"   , 23},
-		{270, "Az 270#circ"   , 12}
+		{  0, "Az 0#circ"     , 21},
+		{ 90, "Az 90#circ"    , 21},
+		{180, "Az 180#circ"   , 21},
+		{270, "Az 270#circ"   , 21}
 	};
  
-	double labelR = mirror ? 1.23 : 1.05;
- 
-	//loop through each sub-array in the array to draw the azimuth label on the plot. 
+	double labelR = 1.2;
+
+	//tunable vertical pull-in factors ? separate for top (Az90) and bottom (Az270) labels
+	double topScale    = mirror ? 0.90 : 0.90;   // right hemi labels were too high -> pull in more (0.85)
+	double bottomScale = mirror ? 0.95 : 0.95;   // left hemi bottom -> push down a touch (increase toward 1.0)
+
 	for (auto& d : dirs)
 	{
-		//define the phi value and use it to find the x and y coordinate of the label. 
 		double phi = AzToPlotRad(d.az, mirror);
 
-	 	double lx = labelR * std::cos(phi);
-		double ly = mirror ? labelR * std::sin(phi) * 0.85 : labelR * std::sin(phi);
-		
-		//create and draw the label at the calculated x and y coordinate.
+		double lx = labelR * std::cos(phi);
+		double sinPhi = std::sin(phi);
+
+		double ly;
+		if (sinPhi > 1e-9)        ly = labelR * sinPhi * topScale;     // Az 90 (top)
+		else if (sinPhi < -1e-9)  ly = labelR * sinPhi * bottomScale;  // Az 270 (bottom)
+		else                      ly = 0.0;                            // Az 0 / Az 180 (unaffected)
+
 		TLatex* lbl = new TLatex(lx, ly, d.text);
-		lbl->SetTextSize(0.025);
+		lbl->SetTextSize(0.035);
 		lbl->SetTextAlign(d.align);
+		lbl->SetTextColor(kBlack);
 		lbl->Draw("same");
 	}
  
 	//create and draw the histogram title.
 	TLatex* ttl = new TLatex(0.0, 1.25, title);
 	ttl->SetTextAlign(22);
-	ttl->SetTextSize(0.04);
+	ttl->SetTextSize(0.038);
 	ttl->SetTextFont(62);
 	ttl->Draw("same");
 } 
@@ -267,7 +280,7 @@ TH2Poly* FillHemispherePoly(TTree* tree, bool rightHemi, const char* histName, b
 	tree->SetBranchStatus(AZIMUTH_BRANCH, 1);
  
 	tree->SetBranchAddress(ZENITH_BRANCH,  &zenith_val);
-    tree->SetBranchAddress(AZIMUTH_BRANCH, &azimuth_val);
+	tree->SetBranchAddress(AZIMUTH_BRANCH, &azimuth_val);
  
 	if (useEnergyCut)
 	{
@@ -326,7 +339,9 @@ void StyleAndDrawPoly(TH2Poly* poly, const char* title, TVirtualPad* pad, bool r
 
 	//switch into the canvas pad and draw the polygon object ensuring that any object outer borders are invisible.
 	pad->cd();
-	pad->SetRightMargin(0.15);
+	pad->SetRightMargin(0.25);
+	pad->SetLeftMargin(0.13);
+	pad->SetTopMargin(0.20);
 	 
 	poly->GetXaxis()->SetLabelOffset(999);
 	poly->GetYaxis()->SetLabelOffset(999);
@@ -346,8 +361,8 @@ void StyleAndDrawPoly(TH2Poly* poly, const char* title, TVirtualPad* pad, bool r
 	 
 	if (palette)
 	{
-		palette->SetX1NDC(0.925);
-		palette->SetX2NDC(0.95);
+		palette->SetX1NDC(0.875);
+		palette->SetX2NDC(0.90);
 		palette->SetY1NDC(0.10);
 		palette->SetY2NDC(0.90);
 		pad->Modified();
@@ -399,32 +414,40 @@ TH2Poly* DivideHemispheres(TH2Poly* num, TH2Poly* den, const char* name)
 //function to put draw the left and right histograms next to each other.
 bool DrawTreeRow(TFile* f, const char* treeName, const char* rowLabel, const char* histPrefix, TVirtualPad* leftPad, TVirtualPad* rightPad, TH2Poly*& leftPolyOut, TH2Poly*& rightPolyOut)
 {
-	//get the tree from the inputted root file and check that it is found.
 	TTree* tree = nullptr;
 	f->GetObject(treeName, tree);
-	 
+
 	if (!tree)
 	{
 		std::cerr << "[ERROR] TTree '" << treeName << "' not found in file" << std::endl;
 		return false;
 	}
-	 
+
 	std::cout << "[INFO] Tree '" << treeName << "' Entries = " << tree->GetEntries() << std::endl;
-	 
-	//create names for the left and right histogram and set their titles as French Side and Italian Side, respectively.
+
 	std::string leftHistName  = std::string(histPrefix) + "_left_hemisphere";
 	std::string rightHistName = std::string(histPrefix) + "_right_hemisphere";
-	 
+
 	std::string leftTitle  = std::string(rowLabel) + ": Italian Side.";
 	std::string rightTitle = std::string(rowLabel) + ": French Side.";
-	 
-	//call the fill and style functions to fully draw the plots.
-	leftPolyOut = FillHemispherePoly(tree, false, leftHistName.c_str(), true, false, 0.0, 0.0);
+
+	// --- Fill BOTH histograms first, don't draw yet ---
+	leftPolyOut  = FillHemispherePoly(tree, false, leftHistName.c_str(),  true,  false, 0.0, 0.0);
+	rightPolyOut = FillHemispherePoly(tree, true,  rightHistName.c_str(), false, false, 0.0, 0.0);
+
+	// --- Compute a shared color scale from both ---
+	double globalMax = std::max(leftPolyOut->GetMaximum(), rightPolyOut->GetMaximum());
+	double globalMin = 0.0;  // force min to 0 since these are counts; avoids empty-bin weirdness
+
+	leftPolyOut->SetMinimum(globalMin);
+	leftPolyOut->SetMaximum(globalMax);
+	rightPolyOut->SetMinimum(globalMin);
+	rightPolyOut->SetMaximum(globalMax);
+
+	// --- Now draw both with matching scales ---
 	StyleAndDrawPoly(leftPolyOut, leftTitle.c_str(), leftPad, false, true);
-	 
-	rightPolyOut = FillHemispherePoly(tree, true, rightHistName.c_str(), false, false, 0.0, 0.0);
 	StyleAndDrawPoly(rightPolyOut, rightTitle.c_str(), rightPad, true, false);
-	 
+
 	return true;
 }
  

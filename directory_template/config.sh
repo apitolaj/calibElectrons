@@ -1,5 +1,11 @@
 source "$(dirname "${BASH_SOURCE[0]}")/../../home_path.sh"
 
+#the user should change the following two lines below to reflect the most recent version of Falaise.
+
+PROFILE_SCRIPT="${THRONG_DIR}/config/supernemo_profile.bash"
+
+STACK_NAME="falaise@2026-06-19"
+
 #if the user's home path was entered correctly in home_path.sh, there is no need to alter any of the paths below.
 
 SOURCE_FAMILY="Source_SOURCE_PLACEHOLDER"

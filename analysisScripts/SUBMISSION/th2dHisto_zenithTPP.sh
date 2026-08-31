@@ -9,8 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --export=HOME,USER,THRONG_DIR
 
-PROFILE_SCRIPT="${THRONG_DIR}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-04-07"
+source "${PWD}/../../directory_template/config.sh"
 
 set +e
 	set +u
@@ -26,13 +25,13 @@ do
     for k in $(seq 0 6);
     do
     
-        DST_DIR="../ANALYSIS/Source_${i}_${k}"
+        DST_DIR="../../SOURCES/Source_${i}_${k}/ANALYSIS"
         
         if [ -d ${DST_DIR} ]; then
         
-		sed "s|SOURCE_PLACEHOLDER|${i}_${k}|g; s|ENERGY_PLACEHOLDER1|allEnergies|g; s|ENERGY_PLACEHOLDER2|all energies|g" "../ROOT/th2dHisto_zenithTPP.cpp" > "${DST_DIR}/th2dHisto_zenithTPP_allEnergies_Source_${i}_${k}.cpp"
+		sed "s|SOURCE_PLACEHOLDER|${i}_${k}|g" "../PLOT/th2dHisto_zenithTPP.cpp" > "${DST_DIR}/th2dHisto_zenithTPP_Source_${i}_${k}.cpp"
 		
-		(cd ${DST_DIR} && root -q -l -b 'th2dHisto_zenithTPP_allEnergies_Source_'${i}_${k}'.cpp("zenithTPP_envelope_allEnergies_Source_'${i}_${k}'.root","zenithTPP_noEnvelope_allEnergies_Source_'${i}_${k}'.root")')
+		(cd ${DST_DIR} && root -q -l -b 'th2dHisto_zenithTPP_Source_'${i}_${k}'.cpp("analysisROOT_Source_'${i}_${k}'.root")')
 		
 	fi
 	

@@ -2,15 +2,14 @@
 #SBATCH --job-name=polarHisto
 #SBATCH --mem=1G
 #SBATCH --licenses=sps
-#SBATCH --output=output.out
-#SBATCH --error=err.er
+#SBATCH --output=/dev/null
+#SBATCH --error=/dev/null
 #SBATCH --time=00:10:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --export=HOME,USER,THRONG_DIR
 
-PROFILE_SCRIPT="${THRONG_DIR}/config/supernemo_profile.bash"
-STACK_NAME="falaise@2026-06-19"
+source "${PWD}/../../directory_template/config.sh"
 
 set +e
 set +u
@@ -26,15 +25,13 @@ do
     for k in $(seq 0 6);
     do
     	
-        DST_DIR="../ANALYSIS/Source_${i}_${k}"
-        
-        mkdir -p "${DST_DIR}"
+        DST_DIR="../../SOURCES/Source_${i}_${k}/ANALYSIS"
         
         if [ -d ${DST_DIR} ]; then
         	
-		sed "s|SOURCE_PLACEHOLDER|${i}_${k}|g; s|ENERGY_PLACEHOLDER|placeholder|g" "../PLOT/polarHistoTEST_angles.cpp" > "${DST_DIR}/polarHistoTEST_Source_${i}_${k}.cpp"
+		sed "s|SOURCE_PLACEHOLDER|Source_${i}_${k}|g" "../PLOT/polarHisto_angles.cpp" > "${DST_DIR}/polarHisto_angles_Source_${i}_${k}.cpp"
 		
-#		(cd ${DST_DIR} && root -q -l -b 'polarHisto_Source_'${i}_${k}'.cpp("analysisROOT.root")')
+		(cd ${DST_DIR} && root -q -l -b 'polarHisto_angles_Source_'${i}_${k}'.cpp("analysisROOT_Source_'${i}_${k}'.root")')
 	
 	fi
 	

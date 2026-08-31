@@ -18,10 +18,7 @@ Inside the directory, the user should change into the configuration sub-director
       cd configuration
    ```
 This subdirectory contains all the simulation and event cut configuration files for Falaise. The default settings in the configuration files may be changed by the user if they desire, but they should be left as is to reproduce the figures seen in this repository. Nonetheless, the user needs to <b> change the paths in the following files </b> to match their own directory: <b> SNCuts-pipeline.conf, p_MiModule_v00.conf, 2D-CMRMN-CPT-GT-pipeline.conf </b>. In simu_setup.conf.template, the user may change how many events they wish to run per simulation; anything larger than 1,000,000 events will be too large as the simulation will take unnecessarily long to run. After all this is completed, inside the configuration subdirectory the user should go deeper into the profiles sub-directory and run the makeProfiles script:
-   ```bash
-      cd profiles
-      bash makeProfiles.sh
-   ```
+  
 Once finished, all configuration is complete and the user can change back to the parent directory.
    ```bash
       cd ../..
@@ -43,7 +40,7 @@ The submission and running scripts work together using array jobs. Here you will
 <b>No changes need to be made to them except for the resource allocation in each script </b>. This is dependent on how many events you are simulating at a time. It may take some time experimenting with how many GB and time to allocate for optimal efficiency. After these changes are made, the user should change back to the parent directory and run the makeDirectories script:
    ```bash
       cd ../..
-      bash makeDirectories.sh
+      bash setup.sh
    ```
 This creates a new sub directory called SOURCES that houses a copy of the directory_template sub directory for each of the 42 sources, linking each directory to its correct configuration files automatically. 
 
@@ -59,7 +56,7 @@ The data will be simulated and processed through the full framework developed by
 To create the analysis plots for the generated data, the user must first navigate to the SUBMISSION subdirectory and run the script analysis.sh:
    ```bash
       cd SUBMISSION
-      bash analysis.sh
+      bash submit_analysis.sh
    ```
 For each of the 42 sources, this will copy a version of script /calibElectrons/ROOT/analysis_chainROOT.cpp to each sources' respective folder in the /calibelectrons/ANALYSIS subdirectory and run it; the script knows where to find each sources data and to chain together multiple ROOT files if they exist.
 
@@ -92,8 +89,46 @@ The script will produce a ROOT file containing a tree for electrons that interac
   </tr>
 </table>
 
+### Creating ROOT Plots
+
+After the analysis ROOT file is created, the plotting scripts can be ran. The repository currently has 6 plotting scripts found in the SUBMISSION subdirectory of analysisScirpts:
+   ```bash
+       polarHisto.sh
+       th2dHisto_TPPDistribution.sh
+       th2dHisto_zenithTPP.sh
+       the2dHisto_zenitDistOM.sh
+       submit_curveFitting.sh
+   ```
+These scripts can be ran individually as is and will produce their respective plot(s) for each simulated source, which is described in more detail in the next section of this README. The scripts call also be ran all at once with:
+   ```bash
+      bash masterSubmit_plots.sh
+   ``` 
+The user can view the plots individually in each source's ANALYSIS subdirectory, or they can navigate to /analysisScripts/VIEW where they will find a variety of scripts that can be executed to automatically open each plot of a certain type across all simulated sources for easier viewing. 
+
 </details>
 
 <details open>
-<summary> <h2> Data Analysis </h2></summary>
+<summary> <h2> Plot Discussion </h2></summary>
+
+The plotting scripts above run the following ROOT macros found in the PLOT subdirectory of analysisScripts:
+   ```bash
+       polarHisto_angles.cpp
+       th2dHisto_TPPDistribution.cpp
+       th2dHisto_zenithTPP.cpp
+       the2dHisto_zenitDistOM.cpp
+       curveFittingGauss.cpp
+       curveFittingLangau.cpp
+   ```
+
+### polarHisto_angles.cpp 
+
+### curveFittingGauss.cpp & curveFittingLangau.cpp
+
+### th2dHisto_TPPDistribution.cpp, th2dHisto_zenithTPP.cpp, the2dHisto_zenitDistOM.cpp
+
+
+
+
+
+
 </details>
